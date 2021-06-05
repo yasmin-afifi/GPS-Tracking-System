@@ -1,3 +1,35 @@
+#include "stdint.h"
+#include "tm4c123gh6pm.h"
+
+//intiliaztion of port B as data pins
+void lcd_data_ports_init(){
+	  SYSCTL_RCGCGPIO_R |= 0x02;   //clock B
+    while((SYSCTL_RCGCGPIO_R & 0x02) == 0);
+		GPIO_PORTB_LOCK_R = 0x4C4F434B;   //unlock port B
+    GPIO_PORTB_CR_R |= 0xFF;
+	  GPIO_PORTB_DIR_R |= 0xFF;     //set as ouput
+    GPIO_PORTB_DEN_R |= 0xFF;     // set as digital
+    GPIO_PORTB_AFSEL_R = 0;       // lock alternationg
+    GPIO_PORTB_PCTL_R = 0;
+    GPIO_PORTB_AMSEL_R = 0;       //lock analog
+}
+
+
+//intailize pin 5,6,7 of port A as control pins to lcd
+void lcd_control_ports_init(){
+		SYSCTL_RCGCGPIO_R |= 0x01;   //clock B
+    while((SYSCTL_RCGCGPIO_R & 0x01) == 0);
+	  GPIO_PORTA_LOCK_R = 0x4C4F434B;   //unlock pins in port A
+    GPIO_PORTA_CR_R |= 0xE0;
+	  GPIO_PORTA_DIR_R |= 0xE0;     // set as ouput
+    GPIO_PORTA_DEN_R |= 0xE0;     // set as digital
+    GPIO_PORTA_AFSEL_R = 0;       //lock alternating
+    GPIO_PORTA_PCTL_R = 0;     
+    GPIO_PORTA_AMSEL_R = 0;       //lock analog
+}
+
+
+
 //intialize to screen of lcd
 void lcd_init(){
 	  lcd_data_ports_init();
