@@ -52,16 +52,16 @@ void display_distance(int x)
    char d[] = {"Distance: "};
    int i;
    for(i = 0; i < 10; i++){
-			lcd_data(d[i]);
-			Delay();
+	lcd_data(d[i]);
+	Delay();
    } 
-	 h = (x / 100) + '0';
-	 lcd_data(h);
+   h = (x / 100) + '0';
+   lcd_data(h);
    Delay();
-	 t = ((x / 10)% 10)+ '0';
-	 lcd_data(t);
+   t = ((x / 10)% 10)+ '0';
+   lcd_data(t);
    Delay();
-	 u = (x % 10) + '0';
-	 lcd_data(u);
+   u = (x % 10) + '0';
+   lcd_data(u);
    Delay();
 }
