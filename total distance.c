@@ -1,88 +1,53 @@
-#include "stdint.h"
-#include "tm4c123gh6pm.h"
-#include "math.h"
-#include "stdbool.h"
-#include "LCD.h"
-
-
-//Distance between two coordinates
 double calcDistance(double dLat1,double dLon1 ,double dLat2, double dLon2)
 {
- double r = 6371;                            //Earth's radius in kilometers
- double dLat;
- double dLon;
- double a;
- double distance;
- double c = 0;
-	
- dLat = dLat2- dLat1;
- dLat /= 57.29577951;
-	
- dLon= dLon2-dLon1;
- dLon/= 57.29577951;
- 
- dLat1 /= 57.29577951;
- dLat2 /= 57.29577951;
-	
- a = (sin(dLat/2)*sin(dLat/2)) +( cos(dLat1)*cos(dLat2)*sin(dLon/2)*sin(dLon/2));
-	
- c = 2* atan2(sqrt(a),sqrt(1-a));
-	
- distance = r*c;       
- return distance;
+   double distance;
+    dLat1 = dLat1 * (pi / 180.0);
+    dLat2 = dLat2 * (pi / 180.0);
+    dLon1 = dLon1 * (pi / 180.0);
+    dLon2 = dLon2 * (pi / 180.0);
+
+    distance = 3963 * acos( sin(dLat1) * sin(dLat2) + cos(dLat1) * cos(dLat2) * cos(dLon2 - dLon1) )*1609.34;
+    return distance;
+
 }
 
-
-//intiliaztion of port F pin 4 as switch
-void switch_init(){
-	volatile unsigned long delay;
-	SYSCTL_RCGCGPIO_R |= 0x20;     //PORTF_CLK_LED
-	while((SYSCTL_RCGCGPIO_R & 0x20) == 0);   //WAIT FOR CLOCK                  
-	GPIO_PORTF_LOCK_R = 0x4C4F434B; //unlock PORTF
-	GPIO_PORTF_CR_R |= 0x10;
-	
-  GPIO_PORTF_DIR_R &= ~0x10;      //switch F4
-	GPIO_PORTF_AFSEL_R &= ~0x10;        //OFF ALTERNATE FOR switch
-	GPIO_PORTF_PCTL_R &= ~0x10;     
-	GPIO_PORTF_AMSEL_R &= ~0x10;        //NOT_ANALOG
-	GPIO_PORTF_DEN_R |= 0x10;      //enable-digital
-	GPIO_PORTF_PUR_R |= 0x01;
-}
-
-//return true if switch is pushed
-bool Pushed_Switch()
+void One_Second_Delay(void)
 {
-	return ((GPIO_PORTF_DATA_R & 0x10) == 0x00);
-	
+    NVIC_ST_CTRL_R = 0;            /* disable SysTick during setup */
+    NVIC_ST_RELOAD_R = 15999999;    /* Reload Value goes here */
+    NVIC_ST_CTRL_R |= 0x5;          /* enable SysTick with core clock */
+    while( (NVIC_ST_CTRL_R & (1<<16) ) == 0);
+                                              /* Monitoring bit 16 to be set */
+    NVIC_ST_CTRL_R = 0;             /* Disabling SysTick Timer */
 }
 
-//get Total distance by summing every distance between two coordinates
-//stop summing when swich is pushed
-double TotDist(){
-	double totalDistance = 0;
-	double dLat1;
-	double dLon1;
-	double distance;
-	
-	while (!Pushed_Switch()){
-		
-		double dLat2;
-		double dLon2;
-		Delay();
- 		distance = calcDistance( dLat1,dLon1,dLat2,dLon2);
-		if (distance>1)
-		{
-			dLat1 = dLat2;
-			dLon1 = dLon2;
-			
-		  totalDistance += distance;
-		}
-		
-	}
-	
-return totalDistance;
+void delayy(){
+    int i;
+    int j;
+    for(i = 0; i < 2500; i++){
+        for(j = 0; j < 2500; j++){
+
+        }
+    }
 }
 
+void PortF_LEDs_Init(void){
+    int delay;
+    SYSCTL_RCGCGPIO_R  |= 0x20;
+    delay = 1;
+    GPIO_PORTF_CR_R = 0x0E;
+    GPIO_PORTF_AFSEL_R = 0;
+    GPIO_PORTF_PCTL_R = 0;
+    GPIO_PORTF_AMSEL_R = 0;
+    GPIO_PORTF_DIR_R = 0x0E;
+    GPIO_PORTF_DEN_R = 0x0E;
+}
 
+void Red_ON(void) { GPIO_PORTF_DATA_R |= RED_LED; }
+void Red_OFF(void) { GPIO_PORTF_DATA_R &= ~RED_LED; }
 
+void Blue_ON(void) { GPIO_PORTF_DATA_R |= Blue_LED; }
+void Blue_OFF(void) { GPIO_PORTF_DATA_R &= ~Blue_LED; }
 
+void Green_ON(void) { GPIO_PORTF_DATA_R |= Green_LED; }
+void Green_OFF(void) { GPIO_PORTF_DATA_R &= ~Green_LED; }
