@@ -18,3 +18,16 @@ void UART0_WRITE(unsigned char data){
     while((UART0_FR_R&UART_FR_TXFF) != 0);
     UART0_DR_R = data;
 }
+
+void printstring(char *data){
+    while(*data){
+        UART0_WRITE(*(data++));
+    }
+}
+
+
+void SystemInit(){
+    UART0_Init();
+    UART5_Init();
+    PortF_LEDs_Init();
+}
